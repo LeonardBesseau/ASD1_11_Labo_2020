@@ -4,26 +4,31 @@
 #include <string>
 #include <iostream>
 
-template <typename Key> struct Node {
+template<typename Key>
+struct Node {
     Key const key;
-    Node* left;
-    Node* right;
+    Node *left;
+    Node *right;
 };
 
-template<typename Key> class bst;
+template<typename Key>
+class bst;
 
-template <typename Key> std::ostream& operator<<(std::ostream& s, bst<Key> const& tree);
+template<typename Key>
+std::ostream &operator<<(std::ostream &s, bst<Key> const &tree);
 
 template<typename Key>
 class bst { // binary search tree
 
-    friend std::ostream &operator<<<>(std::ostream &, bst<Key> const &);
+    friend std::ostream &operator
+    <<<>(std::ostream &, bst<Key> const &);
 
     Node<Key> *root;
 
 public:
 
     bst();
+
     void insert(Key const &k);
 
     // les fonctions suivantes sont à mettre en oeuvre et à tester.
@@ -31,37 +36,72 @@ public:
     bst(bst const &other);               // doit offrir la garantie de base
     bst &operator=(bst const &other);    // doit offrir la garantie forte
     ~bst();                              // doit libérer proprement toute la mémoire
-                                         // une définition vide est actuellement fournie pour que le projet compile.
+    // une définition vide est actuellement fournie pour que le projet compile.
 
-    bool contains(Key const& k) const noexcept ; // recherche de l'élément
+    bool contains(Key const &k) const noexcept; // recherche de l'élément
 
     // toutes les fonctions se référant à min ou max lèvent une std::exception si l'arbre est vide
-    Key const& min() const ;
-    Key const& max() const ;
-    void erase_min() ;
-    void erase_max() ;
+    Key const &min() const;
 
-    void erase(Key const& k) noexcept ;
+    Key const &max() const;
 
-    template<typename Fn> void visit_in_order(Fn f) const ; // la fonction f prend un élément de type Key en paramètre
-                                                            // elle est appelée pour tous les éléments de l'arbre par
-                                                            // ordre croissant.
+    void erase_min();
+
+    void erase_max();
+
+    void erase(Key const &k) noexcept;
+
+    template<typename Fn>
+    void visit_in_order(Fn f) const; // la fonction f prend un élément de type Key en paramètre
+    // elle est appelée pour tous les éléments de l'arbre par
+    // ordre croissant.
 
     // pour la fonction suivante un test vous est fourni et échoue actuellement
 
-    void display_indented(std::ostream &s) const noexcept ;
+    void display_indented(std::ostream &s) const noexcept;
 
     // les fonctions suivantes seront expliquées dans la video 5.14
 
-    void linearize() noexcept ;
-    void balance() noexcept ;
+    void linearize() noexcept;
+
+    void balance() noexcept;
 
 private:
     // fonctions récursives utilisées par les fonctions publiques ci-dessus
     // elles sont static car elles n'ont pas besoin d'accéder à l'attribut root.
-
     static void insert(Node<Key> *&r, Key const &k);
+
     static void to_stream(Node<Key> *r, std::ostream &s) noexcept;
+
+    static void copyPreOrderFromSource(Node<Key> *&dest, Node<Key> *source);
+
+    static void destroyPostOrder(Node<Key> *dest);
+
+    static Node<Key> *search(Node<Key> *p, Key const &k) noexcept;
+
+    static Node<Key> *min(Node<Key> *p) noexcept;
+
+    static Node<Key> *max(Node<Key> *p) noexcept;
+
+    static void eraseMin(Node<Key> *&p);
+
+    static void eraseMax(Node<Key> *&p);
+
+    static void erase(Node<Key> *&p, Key const &k) noexcept;
+
+    static Node<Key> *splice_min(Node<Key> *&p) noexcept;
+
+    template<typename Fn>
+    static void visitSymetric(Node<Key> *dest, Fn f);
+
+    static std::ostream &
+    displayIdent(std::ostream &lhs, Node<Key> *r, const std::string &ident = std::string());
+
+    static void linearize(Node<Key> *r, Node<Key> *&L, size_t &n) noexcept;
+
+    static Node<Key> * arborize(Node<Key> *&L, size_t n) noexcept ;
+
+
 };
 
 // toutes les fonctions sont définies dans le fichier inclus ci-dessous
