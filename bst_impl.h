@@ -207,7 +207,7 @@ void bst<Key>::display_indented(std::ostream &s) const noexcept {
 }
 
 template<typename Key>
-bst<Key>::bst(const bst &other) {
+bst<Key>::bst(const bst &other): bst(){
     copyPreOrderFromSource(root, other.root);
 }
 

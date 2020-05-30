@@ -1,8 +1,10 @@
 #include "catch.hpp"
 #include "../bst.h"
+#include "../util.h"
 
 #include <sstream>
 #include <string>
+
 
 using namespace std;
 
@@ -233,22 +235,21 @@ TEST_CASE("linearize", "[bst]") {
                 REQUIRE_NOTHROW(tree.linearize());
                 REQUIRE(to_string(tree).empty());
             }
-        }
-        WHEN("the tree has elements") {
-            for(int i : { 7,8,5,6,2,1,3,4 })
+        }WHEN("the tree has elements") {
+            for (int i : {7, 8, 5, 6, 2, 1, 3, 4})
                 tree.insert(i);
             THEN("the tree is linearized") {
                 tree.linearize();
                 REQUIRE(to_string(tree) == "1(.,2(.,3(.,4(.,5(.,6(.,7(.,8)))))))");
             }
         }WHEN("the tree has only one element") {
-                tree.insert(42);
+            tree.insert(42);
             THEN("Nothing happens") {
                 tree.linearize();
                 REQUIRE(to_string(tree) == "42");
             }
         }WHEN("the tree is already linearized") {
-            for(int i : { 1,2,3,4,5,6,7,8 })
+            for (int i : {1, 2, 3, 4, 5, 6, 7, 8})
                 tree.insert(i);
             THEN("Nothing happens") {
                 tree.linearize();
@@ -258,8 +259,76 @@ TEST_CASE("linearize", "[bst]") {
     }
 }
 
-TEST_CASE("copy constructor", "[bst]") {
 
+TEST_CASE("destructor", "[bst]") {
+
+    GIVEN("An empty tree") {
+        WHEN("the destructor is called") {
+            THEN("The object is detroyed with no other call") {
+                std::ostringstream oss;
+                std::streambuf *pCout = cout.rdbuf(); // pointer to restore cout later
+                cout.rdbuf(oss.rdbuf()); // redirect output
+
+                {
+
+                    bst<C> tree;
+                }
+                REQUIRE(oss.str().empty());
+                cout.rdbuf(pCout); // restore cout
+
+            }
+        }
+    }
+
+    GIVEN("A tree with some element") {
+        WHEN("the destructor is called") {
+            THEN("The object and each element in it too") {
+                std::ostringstream oss;
+                std::streambuf *pCout = cout.rdbuf(); // pointer to restore cout later
+                cout.rdbuf(oss.rdbuf()); // redirect output
+
+                {
+                    bst<C> tree;
+                    for (int i : {7, 8, 5, 6, 2, 1, 3, 4})
+                        tree.insert(i);
+                }
+                REQUIRE(oss.str() == " C(7)  CP(7)  D(7)  C(8)  CP(8)  D(8)  C(5)  CP(5)  D(5)  C(6)  CP(6)  D(6)  C(2) "
+                                     " CP(2)  D(2)  C(1)  CP(1)  D(1)  C(3)  CP(3)  D(3)  C(4)  CP(4)  D(4) "
+                                     " D(1)  D(4)  D(3)  D(2)  D(6)  D(5)  D(8)  D(7) "
+                );
+                cout.rdbuf(pCout); // restore cout
+            }
+        }
+    }
+}
+
+TEST_CASE("copy constructor", "[bst]") {
+    GIVEN("An empty tree"){
+        bst<int> tree;
+        WHEN("a copy is created") {
+            THEN("The copy is empty") {
+                bst<int> newTree{tree};
+                REQUIRE(to_string(newTree).empty());
+            }
+        }
+    }
+    GIVEN("A tree with some element"){
+        bst<int> tree;
+        for (int i : {7, 8, 5, 6, 2, 1, 3, 4})
+            tree.insert(i);
+        WHEN("a copy is created") {
+            bst<int> newTree{tree};
+            THEN("The new tree has the same value as the original") {
+                REQUIRE(to_string(newTree) == to_string(tree));
+            }
+            AND_THEN("A modification on one pf the tree does not modify the other"){
+                tree.erase_min();
+                REQUIRE(to_string(newTree) != to_string(tree));
+                newTree.insert(300);
+                REQUIRE(!tree.contains(300));
+            }
+        }
+    }
 }
 
 TEST_CASE("copy assignement operator", "[bst]") {

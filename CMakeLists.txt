@@ -3,5 +3,5 @@ project(ASD1_Labs_2020)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(bst_main main.cpp)
+add_executable(bst_main main.cpp util.cpp util.h)
 add_subdirectory(catch2_tests)

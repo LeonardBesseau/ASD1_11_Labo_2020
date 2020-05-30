@@ -12,6 +12,8 @@ void afficher(T t) {
     cout << t << " ";
 }
 
+#include "util.h"
+
 int main() {
 
     bst<int> t{};
@@ -20,6 +22,7 @@ int main() {
         t.insert(i);
         */
 
+    cout <<endl;
     for(int i : { 7,8,5,6,2,1,3,4 })
         t.insert(i);
     t.display_indented(cout);
