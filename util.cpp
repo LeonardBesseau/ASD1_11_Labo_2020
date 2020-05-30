@@ -6,13 +6,17 @@ using std::endl;
 
 #include "util.h"
 
-C::C(int i) : value(i), throws(false) {
+C::C(int i) : value(i), throws(0) {
     cout << " C(" << value << ") ";
 }
 
 C::C(const C& c) : value(c.value), throws(c.throws) {
-    if(throws) throw std::exception();
-    cout << " CP(" << value << ") ";
+    if(throws == 2) throw std::exception();
+    else{
+        cout << " CP(" << value << ") ";
+        ++throws;
+    }
+
 }
 
 C& C::operator= (const C& other) {
@@ -62,3 +66,5 @@ bool C::operator<=(const C &rhs) const {
 bool C::operator>=(const C &rhs) const {
     return !(*this < rhs);
 }
+
+C::C(int i, int throws):  value(i), throws(throws){}

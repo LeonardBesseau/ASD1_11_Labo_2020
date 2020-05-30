@@ -16,7 +16,7 @@ void afficher(T t) {
 
 int main() {
 
-    bst<int> t{};
+    bst<C> t{};
 /*
     for(int i : { 8, 4, 1, 2, 3, 6, 5, 7, 11, 10, 12 })
         t.insert(i);
@@ -25,6 +25,9 @@ int main() {
     cout <<endl;
     for(int i : { 7,8,5,6,2,1,3,4 })
         t.insert(i);
+    cout << endl;
+    bst<C> tree{t};
+    cout << endl;
     t.display_indented(cout);
     cout <<  endl;
     t.linearize();

@@ -6,9 +6,10 @@
 class C {
     friend std::ostream& operator<<(std::ostream& s, const C& v);
     int value;
-    bool throws;
+    int throws;
 public:
     C(int i);
+    C(int i, int throws);
     C(const C& c);
     C& operator= (const C& other);
     ~C();

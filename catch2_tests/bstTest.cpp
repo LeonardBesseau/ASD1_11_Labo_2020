@@ -26,7 +26,7 @@ TEST_CASE("minimum", "[bst]") {
         bst<int> tree;
         WHEN("the tree is empty") {
             THEN("An exception is raised") {
-                REQUIRE_THROWS(tree.min());
+                REQUIRE_THROWS_AS(tree.min(), std::exception);
             }
         }WHEN("the tree has elements") {
             for (int i : {8, 4, 1, 2, 3, 6, 5, 7, 11, 10, 12}) {
@@ -49,7 +49,7 @@ TEST_CASE("max", "[bst]") {
         bst<int> tree;
         WHEN("the tree is empty") {
             THEN("An exception is raised") {
-                REQUIRE_THROWS(tree.max());
+                REQUIRE_THROWS_AS(tree.max(), std::exception);
             }
         }WHEN("the tree has elements") {
             for (int i : {8, 4, 1, 2, 3, 6, 5, 7, 11, 10, 12}) {
@@ -313,15 +313,15 @@ TEST_CASE("copy constructor", "[bst]") {
         }
     }
     GIVEN("A tree with some element"){
-        bst<int> tree;
+        bst<C> tree;
         for (int i : {7, 8, 5, 6, 2, 1, 3, 4})
             tree.insert(i);
         WHEN("a copy is created") {
-            bst<int> newTree{tree};
+            bst<C> newTree{tree};
             THEN("The new tree has the same value as the original") {
                 REQUIRE(to_string(newTree) == to_string(tree));
             }
-            AND_THEN("A modification on one pf the tree does not modify the other"){
+            AND_THEN("A modification on one of the tree does not modify the other"){
                 tree.erase_min();
                 REQUIRE(to_string(newTree) != to_string(tree));
                 newTree.insert(300);
@@ -329,6 +329,31 @@ TEST_CASE("copy constructor", "[bst]") {
             }
         }
     }
+
+    GIVEN("A tree with some element that might throw"){
+        std::ostringstream oss;
+        std::streambuf *pCout = cout.rdbuf(); // pointer to restore cout later
+        cout.rdbuf(oss.rdbuf()); // redirect output
+        bst<C> tree;
+        for (int i : {7, 8, 5, 6})
+            tree.insert(i);
+        tree.insert({2, 1});
+        for (int i : {1, 3, 4})
+            tree.insert(i);
+        oss.str("");
+        WHEN("a copy is created and an exception occur") {
+            try{
+                bst<C> newTree{tree};
+                REQUIRE(false);
+            } catch (const std::exception&) {
+                THEN("The copy is destroyed properly") {
+                    REQUIRE(oss.str() == " CP(7)  CP(5)  D(5)  D(7) ");
+                }
+            }
+        }
+        cout.rdbuf(pCout); // restore cout
+    }
+
 }
 
 TEST_CASE("copy assignement operator", "[bst]") {
