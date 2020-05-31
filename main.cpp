@@ -26,7 +26,7 @@ int main() {
     for(int i : { 7,8,5,6,2,1,3,4 })
         t.insert(i);
     cout << endl;
-    bst<C> tree{t};
+    bst<C> tree;
     cout << endl;
     t.display_indented(cout);
     cout <<  endl;

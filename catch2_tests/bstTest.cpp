@@ -292,9 +292,10 @@ TEST_CASE("destructor", "[bst]") {
                     for (int i : {7, 8, 5, 6, 2, 1, 3, 4})
                         tree.insert(i);
                 }
-                REQUIRE(oss.str() == " C(7)  CP(7)  D(7)  C(8)  CP(8)  D(8)  C(5)  CP(5)  D(5)  C(6)  CP(6)  D(6)  C(2) "
-                                     " CP(2)  D(2)  C(1)  CP(1)  D(1)  C(3)  CP(3)  D(3)  C(4)  CP(4)  D(4) "
-                                     " D(1)  D(4)  D(3)  D(2)  D(6)  D(5)  D(8)  D(7) "
+                REQUIRE(oss.str() ==
+                        " C(7)  CP(7)  D(7)  C(8)  CP(8)  D(8)  C(5)  CP(5)  D(5)  C(6)  CP(6)  D(6)  C(2) "
+                        " CP(2)  D(2)  C(1)  CP(1)  D(1)  C(3)  CP(3)  D(3)  C(4)  CP(4)  D(4) "
+                        " D(1)  D(4)  D(3)  D(2)  D(6)  D(5)  D(8)  D(7) "
                 );
                 cout.rdbuf(pCout); // restore cout
             }
@@ -303,7 +304,7 @@ TEST_CASE("destructor", "[bst]") {
 }
 
 TEST_CASE("copy constructor", "[bst]") {
-    GIVEN("An empty tree"){
+    GIVEN("An empty tree") {
         bst<int> tree;
         WHEN("a copy is created") {
             THEN("The copy is empty") {
@@ -311,8 +312,7 @@ TEST_CASE("copy constructor", "[bst]") {
                 REQUIRE(to_string(newTree).empty());
             }
         }
-    }
-    GIVEN("A tree with some element"){
+    }GIVEN("A tree with some element") {
         bst<C> tree;
         for (int i : {7, 8, 5, 6, 2, 1, 3, 4})
             tree.insert(i);
@@ -320,8 +320,7 @@ TEST_CASE("copy constructor", "[bst]") {
             bst<C> newTree{tree};
             THEN("The new tree has the same value as the original") {
                 REQUIRE(to_string(newTree) == to_string(tree));
-            }
-            AND_THEN("A modification on one of the tree does not modify the other"){
+            }AND_THEN("A modification on one of the tree does not modify the other") {
                 tree.erase_min();
                 REQUIRE(to_string(newTree) != to_string(tree));
                 newTree.insert(300);
@@ -330,7 +329,7 @@ TEST_CASE("copy constructor", "[bst]") {
         }
     }
 
-    GIVEN("A tree with some element that might throw"){
+    GIVEN("A tree with some element that might throw") {
         std::ostringstream oss;
         std::streambuf *pCout = cout.rdbuf(); // pointer to restore cout later
         cout.rdbuf(oss.rdbuf()); // redirect output
@@ -342,12 +341,14 @@ TEST_CASE("copy constructor", "[bst]") {
             tree.insert(i);
         oss.str("");
         WHEN("a copy is created and an exception occur") {
-            try{
+            try {
                 bst<C> newTree{tree};
                 REQUIRE(false);
-            } catch (const std::exception&) {
+            } catch (const std::exception &) {
                 THEN("The copy is destroyed properly") {
                     REQUIRE(oss.str() == " CP(7)  CP(5)  D(5)  D(7) ");
+                }AND_THEN("The source tree is still valid"){
+                    REQUIRE(to_string(tree) == "7(5(2(1,3(.,4)),6),8)");
                 }
             }
         }
@@ -357,7 +358,87 @@ TEST_CASE("copy constructor", "[bst]") {
 }
 
 TEST_CASE("copy assignement operator", "[bst]") {
+    GIVEN("Two empty trees") {
+        bst<int> tree;
+        bst<int> newTree;
+        WHEN("The assignation is done") {
+            THEN("The copy is also empty") {
 
+                newTree = tree;
+                REQUIRE(to_string(newTree).empty());
+            }
+        }
+    }GIVEN("One tree with element and one empty tree") {
+        bst<int> tree;
+        for (int i : {7, 8, 5, 6, 2, 1, 3, 4})
+            tree.insert(i);
+        bst<int> newTree;
+        WHEN("the full tree is assigned the empty tree") {
+            THEN("The full tree is now empty") {
+                tree = newTree;
+                REQUIRE(to_string(newTree).empty());
+            }
+        }WHEN("the empty tree is assigned the full tree") {
+            THEN("The empty tree has copied element from the full tree") {
+                newTree = tree;
+                REQUIRE(to_string(newTree) == to_string(tree));
+            }AND_THEN("A modification on one of the tree does not modify the other") {
+                tree.erase_min();
+                REQUIRE(to_string(newTree) != to_string(tree));
+                newTree.insert(300);
+                REQUIRE(!tree.contains(300));
+            }
+        }
+    }
+    GIVEN("Two trees with some element") {
+        bst<C> tree;
+        for (int i : {7, 8, 5, 6, 2, 1, 3, 4})
+            tree.insert(i);
+        bst<C> newTree;
+        for (int i : {13, 14, 11, 12, 8, 7})
+            newTree.insert(i);
+        WHEN("the assigned tree has the element of the other tree") {
+            tree = newTree;
+            THEN("The new tree has the same value as the original") {
+                REQUIRE(to_string(newTree) == to_string(tree));
+            }AND_THEN("A modification on one of the tree does not modify the other") {
+                tree.erase_min();
+                REQUIRE(to_string(newTree) != to_string(tree));
+                newTree.insert(300);
+                REQUIRE(!tree.contains(300));
+            }
+        }
+        GIVEN("Two trees and some element that might throw") {
+            std::ostringstream oss;
+            std::streambuf *pCout = cout.rdbuf(); // pointer to restore cout later
+            cout.rdbuf(oss.rdbuf()); // redirect output
+            bst<C> tree;
+            for (int i : {7, 8, 5, 6})
+                tree.insert(i);
+            tree.insert({2, 1});
+            for (int i : {1, 3, 4})
+                tree.insert(i);
+            bst<C> newTree;
+            for (int i : {13, 14, 11, 12, 8, 7})
+                newTree.insert(i);
+            oss.str(""); // reset output to only get the assignment output
+            WHEN("a copy is created and an exception occur") {
+                try {
+                    newTree = tree;
+                    REQUIRE(false);
+                } catch (const std::exception &) {
+                    THEN("The copy is destroyed properly") {
+                        REQUIRE(oss.str() == " CP(7)  CP(5)  D(5)  D(7) ");
+                    }AND_THEN("The source tree is still valid"){
+                        REQUIRE(to_string(tree) == "7(5(2(1,3(.,4)),6),8)");
+                    }AND_THEN("The destination tree is still valid and has it's old element"){
+                        REQUIRE(to_string(newTree) == "13(11(8(7,.),12),14)");
+                    }
+                }
+            }
+            cout.rdbuf(pCout); // restore cout
+        }
+    }
 }
 
 TEST_CASE("operator<<", "[bst]") {
