@@ -259,6 +259,38 @@ TEST_CASE("linearize", "[bst]") {
     }
 }
 
+TEST_CASE("balance", "[bst]") {
+    GIVEN("A tree") {
+        bst<int> tree;
+        WHEN("the tree is empty") {
+            THEN("Nothing happens") {
+                REQUIRE_NOTHROW(tree.balance());
+                REQUIRE(to_string(tree).empty());
+            }
+        }WHEN("the tree has elements") {
+            for (int i : {7, 8, 5, 6, 2, 1, 3, 4})
+                tree.insert(i);
+            THEN("the tree is linearized") {
+                tree.balance();
+                REQUIRE(to_string(tree) == "4(2(1,3),6(5,7(.,8)))");
+            }
+        }WHEN("the tree has only one element") {
+            tree.insert(42);
+            THEN("Nothing happens") {
+                tree.balance();
+                REQUIRE(to_string(tree) == "42");
+            }
+        }WHEN("the tree is already balanced") {
+            for (int i : {4, 2, 1, 3, 6, 5, 7, 8})
+                tree.insert(i);
+            THEN("Nothing happens") {
+                tree.balance();
+                REQUIRE(to_string(tree) == "4(2(1,3),6(5,7(.,8)))");
+            }
+        }
+    }
+}
+
 
 TEST_CASE("destructor", "[bst]") {
 

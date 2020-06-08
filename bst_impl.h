@@ -108,7 +108,7 @@ void bst<Key>::erase(Node<Key> *&p, const Key &k) noexcept {
 template<typename Key>
 Node<Key> *bst<Key>::splice_min(Node<Key> *&p) noexcept {
     if (p->left) {
-        splice_min(p->left);
+        return splice_min(p->left);
     } else {
         Node<Key> *d = p;
         p = p->right;
